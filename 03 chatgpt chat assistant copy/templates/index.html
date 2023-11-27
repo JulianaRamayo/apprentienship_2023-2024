@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Chatbot</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; 
+            padding: 0; 
+            background-color: #1a1a1a; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh;
+            color: #fff;
+        }
+        .chat-container { 
+            width: 350px; 
+            background-color: #2d2d2d;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2); 
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .banner {
+            background-color: #6a1b9a; 
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+        }
+        #chat-log { 
+            padding: 15px; 
+            height: 350px; 
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message { 
+            padding: 10px;
+            border-radius: 20px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .user { 
+            background-color: #e91e63;
+            align-self: flex-end;
+        }
+        .assistant { 
+            background-color: #9c27b0;
+            align-self: flex-start;
+        }
+        .input-area {
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            background-color: #333;
+        }
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #555;
+            background-color: #222;
+            color: #fff;
+        }
+        button {
+            background-color: #e91e63;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #c2185b;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="banner">Real Estate Chatbot</div>
+        <div id="chat-log"></div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Ask something..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            var input = document.getElementById("user-input");
+            var message = input.value;
+            if (message.trim() === '') return;
+            input.value = "";
+
+            // Display user message
+            displayMessage("User: " + message, "user");
+
+            // Send message to Flask server
+            fetch('/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display assistant response
+                displayMessage("Assistant: " + data.reply, "assistant");
+            });
+        }
+
+        function displayMessage(text, className) {
+            var chatLog = document.getElementById("chat-log");
+            var messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", className);
+            messageDiv.textContent = text;
+            chatLog.appendChild(messageDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
+
